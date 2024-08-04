@@ -1,58 +1,233 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>METAR Udon Thani Airport</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .widget-container {
-            width: 300px;
-            height: 435px;
-            border: 2px solid #000; /* เส้นขอบของ widget */
-            border-radius: 10px; /* การโค้งมนที่มุม */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* เงาเบา */
-            background-color: #fff; /* พื้นหลังของ widget */
-            padding: 10px;
-            box-sizing: border-box; /* รวมขนาดของขอบในขนาดทั้งหมด */
-        }
-        .widget-container a {
-            font-size: 18px;
-            font-weight: 500;
-            color: #000;
-            text-decoration: none;
-            display: block;
-        }
-        .title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #000;
-            margin-bottom: 10px; /* ช่องว่างด้านล่าง */
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Simple example of using pure Javascript to display METAR weather from api.checkwx.com">
+  <title>METAR Weather Example</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e6e6fa; /* สีม่วงอ่อน */
+    }
+
+    .container {
+      margin-top: 30px;
+    }
+
+    .info-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .info-block {
+      flex: 1;
+      margin: 10px;
+      border-radius: 10px; /* การโค้งมนที่มุม */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* เงาหลังกรอบ */
+      padding: 15px;
+      background-color: #e6e6fa; /* สีม่วงอ่อน */ /* พื้นหลังของกรอบ */
+      color: #333;
+      text-align: center;
+      border: 2px solid; /* กรอบสี่เหลี่ยม */
+    }
+
+    #wind_block {
+      background-color: #f8d7da; /* สีชมพูอ่อน */
+      border-color: #f5c6cb; /* กรอบสีชมพูเข้ม */
+      color: #721c24; /* ตัวอักษรสีชมพูเข้ม */
+    }
+
+    #visibility_block {
+      background-color: #d4edda; /* สีเขียวอ่อน */
+      border-color: #c3e6cb; /* กรอบสีเขียวเข้ม */
+      color: #155724; /* ตัวอักษรสีเขียวเข้ม */
+    }
+
+    #cloud_block {
+      background-color: #d1ecf1; /* สีฟ้าอ่อน */
+      border-color: #bee5eb; /* กรอบสีฟ้าเข้ม */
+      color: #0c5460; /* ตัวอักษรสีฟ้าเข้ม */
+    }
+
+    #cond_block {
+      background-color: #fdffab; /* สีเหลืองอ่อน */
+      border-color: #ffcf81; /* กรอบสีเหลืองเข้ม */
+      color: #6c757d; /* ตัวอักษรสีเทาเข้ม */
+    }
+
+    .info-block h5 {
+      margin-top: 0;
+    }
+
+    .info-block ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .info-block li {
+      margin-bottom: 10px;
+    }
+
+    .info-block img {
+      width: 48px; /* ขนาดของไอคอน */
+      height: 48px; /* ขนาดของไอคอน */
+      vertical-align: middle;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #4b0082; /* สีม่วงเข้ม */
+    }
+
+    h4 {
+      margin-top: 10px; /* เพิ่มระยะห่างด้านบน */
+      color: #4b0082; /* สีม่วงเข้ม */
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .btn-custom {
+      background-color: #e6e6fa; /* สีม่วงอ่อน */
+      color: #4b0082; /* ตัวอักษรสีม่วงเข้ม */
+      border: 2px solid #4b0082; /* กรอบสีม่วงเข้ม */
+      border-radius: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .btn-custom:hover {
+      background-color: #d0d0f5; /* สีม่วงอ่อนเข้มเมื่อชี้เมาส์ */
+      text-decoration: none;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="widget-container">
-            <a href="https://metar-taf.com/VTUD" id="metartaf-4YNUDMFs">METAR Udon Thani Airport</a>
-            <script async defer crossorigin="anonymous" src="https://metar-taf.com/embed-js/VTUD?qnh=hPa&rh=rh&target=4YNUDMFs"></script>
-        </div>
+  <div class="container">
+    <h2>METAR</h2>
+    <h4><span id="icao"></span> <span id="name"></span></h4>
+    <hr>
+    <pre id="raw"></pre>
+    <hr>
+
+    <div class="info-container">
+      <div id="wind_block" class="info-block d-none">
+        <img src="https://img.icons8.com/fluency/48/windsock.png" alt="Wind Icon">
+        <h5>Wind</h5>
+        <ul>
+          <li>
+            <span id="wind_direction"></span> @ <span id="wind_speed"></span><small> knots</small>
+          </li>
+        </ul>
+      </div>
+
+      <div id="visibility_block" class="info-block d-none">
+        <img src="https://img.icons8.com/fluency/48/barometer-gauge.png" alt="Visibility Icon">
+        <h5>Visibility</h5>
+        <ul>
+          <li>
+            <span id="visibility_miles"></span><small> miles</small>
+          </li>
+        </ul>
+      </div>
+
+      <div id="cloud_block" class="info-block d-none">
+        <img src="https://img.icons8.com/fluency/48/clouds--v1.png" alt="Clouds Icon">
+        <h5>Clouds</h5>
+        <ul id="cloud_list">
+        </ul>
+      </div>
+
+      <div id="cond_block" class="info-block d-none">
+        <h5>Conditions</h5>
+        <ul id="cond_list">
+        </ul>
+      </div>
     </div>
+
+    <div class="btn-container">
+      <a href="https://nsweb.tmd.go.th/#showMetars" class="btn-custom" target="_blank">METAR TMD</a>
+    </div>
+  </div>
+
+  <script>
+    function fetchData() {
+      var xhr = new XMLHttpRequest();
+      xhr.addEventListener("readystatechange", function () {
+        if (this.readyState === 4) {
+          success(JSON.parse(this.responseText));
+        }
+      });
+
+      xhr.open("GET", "https://api.checkwx.com/metar/VTUD/decoded");
+      xhr.setRequestHeader("X-API-KEY", "d27b39a0a69e464c86bffd72dc");
+      xhr.send();
+    }
+
+    function success(response) {
+      // Clear previous data
+      document.getElementById('cloud_list').innerHTML = '';
+      document.getElementById('cond_list').innerHTML = '';
+
+      if (response.results > 0) {
+        var metar = response.data[0];
+
+        document.getElementById('icao').innerText = metar.icao;
+        document.getElementById('name').innerText = metar.station.name;
+        document.getElementById('raw').innerText = metar.raw_text;
+
+        if (metar.visibility) {
+          document.getElementById('visibility_miles').innerText = metar.visibility.miles;
+          document.getElementById('visibility_block').classList.remove("d-none");
+        }
+
+        if (metar.wind) {
+          document.getElementById('wind_direction').innerText = metar.wind.degrees;
+          document.getElementById('wind_speed').innerText = metar.wind.speed_kts;
+          document.getElementById('wind_block').classList.remove("d-none");
+        }
+
+        if (metar.clouds[0]) {
+          document.getElementById('cloud_block').classList.remove("d-none");
+          metar.clouds.forEach(cloud => {
+            var el = document.createElement('li');
+            el.innerHTML = cloud.text + ' at ' + cloud.base_feet_agl + ' <small> feet AGL</small>';
+            document.getElementById("cloud_list").appendChild(el);
+          });
+        } else {
+          document.getElementById('cloud_block').classList.add("d-none");
+        }
+
+        if (metar.conditions[0]) {
+          document.getElementById('cond_block').classList.remove("d-none");
+          metar.conditions.forEach(cond => {
+            var el = document.createElement('li');
+            el.innerHTML = cond.text;
+            document.getElementById('cond_list').appendChild(el);
+          });
+        } else {
+          document.getElementById('cond_block').classList.add("d-none");
+        }
+      } else {
+        document.getElementById('raw').innerText = 'No results returned from API';
+      }
+    }
+
+    // Initial fetch
+    fetchData();
+  </script>
+
 </body>
+
 </html>
